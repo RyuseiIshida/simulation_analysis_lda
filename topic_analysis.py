@@ -1,5 +1,5 @@
 import glob
-import re
+import csv
 import gensim
 import numpy as np
 
@@ -45,19 +45,24 @@ def write_topic(file_path, lda):
 
 
 def write_fit_topic(file_path, lda, dictionary):
-    file = open(file_path + "/stepSplit_Corpus.txt", "r")
-    lines = file.readlines()
-    file.close()
-    outfile = open(file_path + "/fit_topic.csv", "w")
-    i = 1
-    for line in lines:
-        data = [line.rstrip("\n").split(",")]
+    read_file = open(file_path + "/stepSplit_Corpus.txt", "r")
+    reader = csv.reader(read_file)
+    out_file = open(file_path + "/fit_topic.csv", "w")
+    writer = csv.writer(out_file)
+    csv_label = ["step"]
+    csv_label.extend(["topic{}".format(tp) for tp in range(num_topics)])
+    writer.writerow(csv_label)
+    for i, line in enumerate(reader):
+        data = [line]
         corpus = [dictionary.doc2bow(words) for words in data]
+        write_topic = [0] * (num_topics + 1)
+        write_topic[0] = i + 1
         for topics_per_document in lda[corpus]:
-            topic_text = re.sub(r"[ ()\[￿\] ]", "", str(topics_per_document))
-            outfile.write(str(i) + "," + topic_text + "\n")
-            i += 1
-    file.close()
+            for topic in topics_per_document:
+                write_topic[topic[0]+1] = topic[1]
+        writer.writerow(write_topic)
+    read_file.close()
+    out_file.close()
 
 
 if __name__ == '__main__':

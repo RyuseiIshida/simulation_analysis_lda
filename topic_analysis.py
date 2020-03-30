@@ -49,8 +49,7 @@ def write_fit_topic(file_path, lda, dictionary):
     reader = csv.reader(read_file)
     out_file = open(file_path + "/fit_topic.csv", "w")
     writer = csv.writer(out_file)
-    csv_label = ["step"]
-    csv_label.extend(["topic{}".format(tp) for tp in range(num_topics)])
+    csv_label = ["step"] + ["topic{}".format(tp) for tp in range(num_topics)]
     writer.writerow(csv_label)
     for i, line in enumerate(reader):
         data = [line]

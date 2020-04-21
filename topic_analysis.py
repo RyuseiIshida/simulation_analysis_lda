@@ -2,6 +2,7 @@ import glob
 import csv
 import gensim
 import numpy as np
+import pyLDAvis.gensim
 
 files = glob.glob("./assets/*")
 num_topics = 3
@@ -9,8 +10,9 @@ num_topics = 3
 
 def analysis_topic():
     for file_paths in files:
-        group_topic_model, dictionary = create_group_topic(file_paths)
+        group_topic_model, dictionary, corpus = create_group_topic(file_paths)
         write_topic(file_paths, group_topic_model)
+        write_LDAvis(file_paths, group_topic_model, dictionary, corpus)
         write_fit_topic(file_paths, group_topic_model, dictionary)
 
 
@@ -30,7 +32,7 @@ def create_group_topic(file):
                                           num_topics=num_topics,
                                           id2word=dictionary,
                                           random_state=1)
-    return lda, dictionary
+    return lda, dictionary, corpus
 
 
 def write_topic(file_path, lda):
@@ -42,6 +44,11 @@ def write_topic(file_path, lda):
             file.write(t[0] + "," + np.str(x))
             file.write("\n")
         file.close()
+
+
+def write_LDAvis(file_path, lda, dictionary, corpus):
+    vis_pcoa = pyLDAvis.gensim.prepare(lda, corpus, dictionary, sort_topics=False)
+    pyLDAvis.save_html(vis_pcoa, file_path + '/pyldavis_output_pcoa.html')
 
 
 def write_fit_topic(file_path, lda, dictionary):
@@ -58,10 +65,15 @@ def write_fit_topic(file_path, lda, dictionary):
         write_topic[0] = i + 1
         for topics_per_document in lda[corpus]:
             for topic in topics_per_document:
-                write_topic[topic[0]+1] = topic[1]
+                write_topic[topic[0] + 1] = topic[1]
         writer.writerow(write_topic)
     read_file.close()
     out_file.close()
+
+
+def plot():
+    file = open("/example_yyyyMMddhhmmss/fit_topic.csv", "r")
+    element = []
 
 
 if __name__ == '__main__':

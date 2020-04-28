@@ -1,3 +1,4 @@
+import os
 import glob
 import csv
 import gensim
@@ -5,12 +6,13 @@ import numpy as np
 import pyLDAvis.gensim
 
 files = glob.glob("./assets/*")
-num_topics = 3
+num_topics = 5
 
 
 def analysis_topic():
     for file_paths in files:
         group_topic_model, dictionary, corpus = create_group_topic(file_paths)
+        mkdir_out(file_paths)
         write_topic(file_paths, group_topic_model)
         write_LDAvis(file_paths, group_topic_model, dictionary, corpus)
         write_fit_topic(file_paths, group_topic_model, dictionary)
@@ -35,10 +37,16 @@ def create_group_topic(file):
     return lda, dictionary, corpus
 
 
-def write_topic(file_path, lda):
-    # ファイル書き込み
+def mkdir_out(load_file_path):
+    out_file_path = load_file_path + "/topic_k" + str(num_topics)
+    if not os.path.exists(out_file_path):
+        os.mkdir(out_file_path)
+
+
+def write_topic(load_file_path, lda):
+    out_file_path = load_file_path + "/topic_k" + str(num_topics)
     for i in range(num_topics):
-        file = open(file_path + "/group_topic" + str(i) + ".txt", "w")
+        file = open(out_file_path + "/group_topic" + str(i) + ".txt", "w")
         for t in lda.show_topic(i):
             x = t[1]
             file.write(t[0] + "," + np.str(x))
@@ -46,15 +54,17 @@ def write_topic(file_path, lda):
         file.close()
 
 
-def write_LDAvis(file_path, lda, dictionary, corpus):
+def write_LDAvis(load_file_path, lda, dictionary, corpus):
+    out_file_path = load_file_path + "/topic_k" + str(num_topics)
     vis_pcoa = pyLDAvis.gensim.prepare(lda, corpus, dictionary, sort_topics=False)
-    pyLDAvis.save_html(vis_pcoa, file_path + '/pyldavis_output_pcoa.html')
+    pyLDAvis.save_html(vis_pcoa, out_file_path + '/pyldavis_output_pcoa.html')
 
 
-def write_fit_topic(file_path, lda, dictionary):
-    read_file = open(file_path + "/stepSplit_Corpus.txt", "r")
+def write_fit_topic(load_file_path, lda, dictionary):
+    read_file = open(load_file_path + "/stepSplit_Corpus.txt", "r")
     reader = csv.reader(read_file)
-    out_file = open(file_path + "/fit_topic.csv", "w")
+    out_file_path = load_file_path + "/topic_k" + str(num_topics)
+    out_file = open(out_file_path + "/fit_topic.csv", "w")
     writer = csv.writer(out_file)
     csv_label = ["step"] + ["topic{}".format(tp) for tp in range(num_topics)]
     writer.writerow(csv_label)
@@ -69,11 +79,6 @@ def write_fit_topic(file_path, lda, dictionary):
         writer.writerow(write_topic)
     read_file.close()
     out_file.close()
-
-
-def plot():
-    file = open("/example_yyyyMMddhhmmss/fit_topic.csv", "r")
-    element = []
 
 
 if __name__ == '__main__':

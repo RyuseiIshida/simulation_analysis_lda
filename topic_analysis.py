@@ -6,7 +6,7 @@ import numpy as np
 import pyLDAvis.gensim
 
 files = glob.glob("./assets/*")
-num_topics = 5
+num_topics = 3
 
 
 def analysis_topic():
@@ -19,7 +19,7 @@ def analysis_topic():
 
 
 def create_group_topic(file):
-    file = open(file + "/stepGroupSizeSplit_Corpus.txt", "r")
+    file = open(file + "/group_size_split_corpus.txt", "r")
     lines = file.readlines()
     data = []
     for line in lines:
@@ -61,7 +61,7 @@ def write_LDAvis(load_file_path, lda, dictionary, corpus):
 
 
 def write_fit_topic(load_file_path, lda, dictionary):
-    read_file = open(load_file_path + "/stepSplit_Corpus.txt", "r")
+    read_file = open(load_file_path + "/step_split_corpus.txt", "r")
     reader = csv.reader(read_file)
     out_file_path = load_file_path + "/topic_k" + str(num_topics)
     out_file = open(out_file_path + "/fit_topic.csv", "w")

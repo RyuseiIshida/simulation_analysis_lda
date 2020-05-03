@@ -4,6 +4,9 @@ import csv
 import gensim
 import numpy as np
 import pyLDAvis.gensim
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 files_dir = glob.glob("./assets/*")
 
@@ -80,6 +83,25 @@ class AnalysisTopic:
         vis_pcoa = pyLDAvis.gensim.prepare(self.lda, self.corpus, self.dictionary, sort_topics=False)
         pyLDAvis.save_html(vis_pcoa, out_file_path + '/pyldavis_output_pcoa.html')
 
+    def plot_fit_topic(self):
+        read_file_path = self.files_path + "/topic_k" + str(self.num_topics) + "/fit_topic.csv"
+        df = pd.read_csv(read_file_path, sep=",")
+        sns.set()
+        sns.set_style('white')
+        fig = plt.figure()
+        bar_width = 0.8 / df.shape[1]
+
+        for i, y in enumerate(range(df.shape[1] - 1)):
+            label = 'topic' + str(i + 1)
+            plt.bar(df['step'] + i * bar_width, df[label], width=bar_width, align="center", label=label)
+        plt.xlabel("step")
+        plt.xticks(df['step'].values)
+        plt.legend(loc='center right', bbox_to_anchor=(1.3, 0.5))
+        plt.subplots_adjust(right=0.8)
+
+        out_file_path = self.files_path + "/topic_k" + str(self.num_topics) + "/fit_topic.png"
+        fig.savefig(out_file_path)
+
 
 if __name__ == '__main__':
     for a_files_path in files_dir:
@@ -87,4 +109,5 @@ if __name__ == '__main__':
         analysis_topic.create_topic()
         analysis_topic.write_topic()
         analysis_topic.write_fit_topic()
+        analysis_topic.plot_fit_topic()
         analysis_topic.write_LDAvis()

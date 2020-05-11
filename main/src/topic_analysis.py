@@ -24,10 +24,9 @@ class AnalysisTopic:
 
     def create_topic(self):
         file = open(self.files_path + "/" + self.analysis_data_name, "r")
-        lines = file.readlines()
         data = []
-        for line in lines:
-            data.append(line.rstrip("\n").split(","))
+        for line in file.readlines():
+            data.append(line.rstrip().split(","))
         file.close()
         self.dictionary = gensim.corpora.Dictionary(data)
         # dictionary.filter_extremes(no_below=5, no_above=5)
@@ -47,24 +46,23 @@ class AnalysisTopic:
     def write_topic(self):
         self._mkdir_out()
         out_file_path = self.files_path + "/topic_k" + str(self.num_topics)
-        for i in range(self.num_topics):
-            file = open(out_file_path + "/group_topic" + str(i + 1) + ".txt", "w")
-            for t in self.lda.show_topic(i):
-                x = t[1]
-                file.write(t[0] + "," + np.str(x))
+        for topic_i in range(self.num_topics):
+            file = open(out_file_path + "/group_topic" + str(topic_i + 1) + ".txt", "w")
+            for topic_word in self.lda.show_topic(topic_i):
+                x = topic_word[1]
+                file.write(topic_word[0] + "," + np.str(x))
                 file.write("\n")
             file.close()
 
     def write_fit_topic(self):
         self._mkdir_out()
         read_file = open(self.files_path + "/" + self.verification_data_name, "r")
-        reader = csv.reader(read_file)
         out_file_path = self.files_path + "/topic_k" + str(self.num_topics)
         out_file = open(out_file_path + "/fit_topic.csv", "w")
         writer = csv.writer(out_file)
-        csv_label = ["step"] + ["topic{}".format(tp + 1) for tp in range(self.num_topics)]
+        csv_label = ["step"] + ["topic{}".format(topic_number + 1) for topic_number in range(self.num_topics)]
         writer.writerow(csv_label)
-        for i, line in enumerate(reader):
+        for i, line in enumerate(csv.reader(read_file)):
             data = [line]
             corpus = [self.dictionary.doc2bow(words) for words in data]
             write_topic = [0] * (self.num_topics + 1)
@@ -90,7 +88,6 @@ class AnalysisTopic:
         sns.set_style('white')
         fig = plt.figure()
         bar_width = 0.8 / df.shape[1]
-
         for i, y in enumerate(range(df.shape[1] - 1)):
             label = 'topic' + str(i + 1)
             plt.bar(df['step'] + i * bar_width, df[label], width=bar_width, align="center", label=label)
@@ -98,7 +95,6 @@ class AnalysisTopic:
         plt.xticks(df['step'].values)
         plt.legend(loc='center right', bbox_to_anchor=(1.3, 0.5))
         plt.subplots_adjust(right=0.8)
-
         out_file_path = self.files_path + "/topic_k" + str(self.num_topics) + "/fit_topic.png"
         fig.savefig(out_file_path)
 

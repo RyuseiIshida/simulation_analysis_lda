@@ -12,12 +12,13 @@ files_dir = glob.glob("./assets/*")
 
 
 class AnalysisTopic:
-    def __init__(self, files_path, num_topics=3, analysis_data_name="group_size_split_corpus.txt",
-                 verification_data_name="step_split_corpus.txt"):
+    def __init__(self, files_path, num_topics=3, analysis_data_name="group_size_split_corpus",
+                 verification_data_name="step_split_corpus", verification_split="60"):
         self.files_path = files_path
         self.num_topics = num_topics
-        self.analysis_data_name = analysis_data_name
-        self.verification_data_name = verification_data_name
+        self.analysis_data_name = analysis_data_name + ".txt"
+        self.verification_data_name = verification_data_name + verification_split + ".txt"
+        self.verification_split = verification_split
         self.dictionary = None
         self.corpus = None
         self.lda = None
@@ -58,7 +59,7 @@ class AnalysisTopic:
         self._mkdir_out()
         read_file = open(self.files_path + "/" + self.verification_data_name, "r")
         out_file_path = self.files_path + "/topic_k" + str(self.num_topics)
-        out_file = open(out_file_path + "/fit_topic.csv", "w")
+        out_file = open(out_file_path + "/fit_topic" + self.verification_split + ".csv", "w")
         writer = csv.writer(out_file)
         csv_label = ["step"] + ["topic{}".format(topic_number + 1) for topic_number in range(self.num_topics)]
         writer.writerow(csv_label)
@@ -82,7 +83,9 @@ class AnalysisTopic:
         pyLDAvis.save_html(vis_pcoa, out_file_path + '/pyldavis_output_pcoa.html')
 
     def plot_fit_topic(self):
-        read_file_path = self.files_path + "/topic_k" + str(self.num_topics) + "/fit_topic.csv"
+        read_file_path = self.files_path + "/topic_k" + str(
+            self.num_topics) + "/fit_topic" + self.verification_split + ".csv"
+        print(read_file_path)
         df = pd.read_csv(read_file_path, sep=",")
         sns.set()
         sns.set_style('white')
@@ -95,13 +98,15 @@ class AnalysisTopic:
         plt.xticks(df['step'].values)
         plt.legend(loc='center right', bbox_to_anchor=(1.3, 0.5))
         plt.subplots_adjust(right=0.8)
-        out_file_path = self.files_path + "/topic_k" + str(self.num_topics) + "/fit_topic.png"
+        out_file_path = self.files_path + "/topic_k" + str(
+            self.num_topics) + "/fit_topic" + self.verification_split + ".png"
         fig.savefig(out_file_path)
 
 
 if __name__ == '__main__':
     for a_files_path in files_dir:
-        analysis_topic = AnalysisTopic(a_files_path, 3)
+        analysis_topic = AnalysisTopic(a_files_path, num_topics=3, analysis_data_name="group_size_split_corpus",
+                                       verification_data_name="step_split_corpus", verification_split="15")
         analysis_topic.create_topic()
         analysis_topic.write_topic()
         analysis_topic.write_fit_topic()

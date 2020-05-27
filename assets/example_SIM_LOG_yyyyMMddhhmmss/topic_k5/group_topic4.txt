@@ -1,0 +1,10 @@
+p56d5moveGoal,0.07250809
+p39d6moveGoal,0.06455832
+p23d6moveGoal,0.048581
+p47d4moveGoal,0.047006775
+p40d4moveGoal,0.034504738
+p40d5moveGoal,0.033692993
+p43d6moveGoal,0.029220441
+p51d6moveGoal,0.027905509
+p42d6moveGoal,0.022737265
+p65d5moveGoalp47d4moveGoal,0.018459857

@@ -105,8 +105,8 @@ class AnalysisTopic:
 
 if __name__ == '__main__':
     for a_files_path in files_dir:
-        analysis_topic = AnalysisTopic(a_files_path, num_topics=3, analysis_data_name="group_size_split_corpus",
-                                       verification_data_name="step_split_corpus", verification_split="15")
+        analysis_topic = AnalysisTopic(a_files_path, num_topics=34, analysis_data_name="group_size_split_corpus",
+                                       verification_data_name="step_split_corpus", verification_split="60")
         analysis_topic.create_topic()
         analysis_topic.write_topic()
         analysis_topic.write_fit_topic()

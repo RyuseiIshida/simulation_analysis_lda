@@ -2,11 +2,10 @@ import os
 import glob
 import csv
 import gensim
-import numpy as np
+import pyLDAvis
 import pyLDAvis.gensim
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+
+from gensim.models import CoherenceModel
 
 files_dir = glob.glob("./assets/*")
 
@@ -38,6 +37,12 @@ class AnalysisTopic:
                                                    num_topics=self.num_topics,
                                                    id2word=self.dictionary,
                                                    random_state=1)
+        # # coherence = CoherenceModel(model=self.lda, corpus=self.corpus, coherence='u_mass').get_coherence()
+        # coherence = CoherenceModel(model=self.lda, texts=data, dictionary=self.dictionary,
+        #                            coherence='c_v').get_coherence()
+        # perplexity = np.exp2(-self.lda.log_perplexity(self.corpus))
+        # # print(f"num_topics = {self.num_topics},coherence = {coherence},perplexity = {perplexity}")
+        # print(f"{self.num_topics},{coherence},{perplexity}")
 
     def _mkdir_out(self):
         out_file_path = self.files_path + "/topic_k" + str(self.num_topics)
@@ -50,8 +55,7 @@ class AnalysisTopic:
         for topic_i in range(self.num_topics):
             file = open(out_file_path + "/group_topic" + str(topic_i + 1) + ".txt", "w")
             for topic_word in self.lda.show_topic(topic_i):
-                x = topic_word[1]
-                file.write(topic_word[0] + "," + np.str(x))
+                file.write(topic_word[0] + "," + str(topic_word[1]))
                 file.write("\n")
             file.close()
 
@@ -79,36 +83,21 @@ class AnalysisTopic:
     def write_LDAvis(self):
         self._mkdir_out()
         out_file_path = self.files_path + "/topic_k" + str(self.num_topics)
-        vis_pcoa = pyLDAvis.gensim.prepare(self.lda, self.corpus, self.dictionary, sort_topics=False)
+        vis_pcoa = pyLDAvis.gensim.prepare(self.lda, self.corpus, self.dictionary, mds='pcoa', sort_topics=False)
+        # vis_mds = pyLDAvis.gensim.prepare(self.lda, self.corpus, self.dictionary, mds='mmds', sort_topics=False)
+        # vis_tsne = pyLDAvis.gensim.prepare(self.lda, self.corpus, self.dictionary, mds='tsne', sort_topics=False)
         pyLDAvis.save_html(vis_pcoa, out_file_path + '/pyldavis_output_pcoa.html')
-
-    def plot_fit_topic(self):
-        read_file_path = self.files_path + "/topic_k" + str(
-            self.num_topics) + "/fit_topic" + self.verification_split + ".csv"
-        print(read_file_path)
-        df = pd.read_csv(read_file_path, sep=",")
-        sns.set()
-        sns.set_style('white')
-        fig = plt.figure()
-        bar_width = 0.8 / df.shape[1]
-        for i, y in enumerate(range(df.shape[1] - 1)):
-            label = 'topic' + str(i + 1)
-            plt.bar(df['step'] + i * bar_width, df[label], width=bar_width, align="center", label=label)
-        plt.xlabel("step")
-        plt.xticks(df['step'].values)
-        plt.legend(loc='center right', bbox_to_anchor=(1.3, 0.5))
-        plt.subplots_adjust(right=0.8)
-        out_file_path = self.files_path + "/topic_k" + str(
-            self.num_topics) + "/fit_topic" + self.verification_split + ".png"
-        fig.savefig(out_file_path)
+        # pyLDAvis.save_html(vis_mds, out_file_path + '/pyldavis_output_mmds.html')
+        # pyLDAvis.save_html(vis_tsne, out_file_path + '/pyldavis_output_tsne.html')
 
 
 if __name__ == '__main__':
     for a_files_path in files_dir:
-        analysis_topic = AnalysisTopic(a_files_path, num_topics=34, analysis_data_name="group_size_split_corpus",
-                                       verification_data_name="step_split_corpus", verification_split="60")
-        analysis_topic.create_topic()
-        analysis_topic.write_topic()
-        analysis_topic.write_fit_topic()
-        analysis_topic.plot_fit_topic()
-        analysis_topic.write_LDAvis()
+        for i in range(1, 101):
+            print("topic = " + str(i))
+            analysis_topic = AnalysisTopic(a_files_path, num_topics=i, analysis_data_name="group_size_split_corpus",
+                                           verification_data_name="step_split_corpus", verification_split="60")
+            analysis_topic.create_topic()
+            analysis_topic.write_topic()
+            analysis_topic.write_fit_topic()
+            analysis_topic.write_LDAvis()

@@ -2,12 +2,11 @@
 ```
 topic_data (シミュレーションログ)
 ├── Parameter.txt（シミュレーション設定パラメータ）
-├── agent{n=1~100}.txt（エージェント行動ログ）
-├── stepGroupSizeSplitCorpus.txt（グループサイズ区切りコーパス）
-├── stepSplitCorpus.txt（指定ステップサイズ区切りコーパス）
+├── agent{n=1~n}.txt（エージェント行動ログ）
+├── group_size_split_corpus.txt（グループサイズ区切りコーパス）
+├── step_split_corpus.txt（指定ステップサイズ区切りコーパス）
 └── topic_k（トピック分析結果 k = 設定トピック数）
     ├── fit_topic.csv（各トピックに対するstep区切り文書の適合度）
-    ├── fit_topic.png (fit_topic.csvの可視化) 
     ├── group_topic{n}.txt（抽出トピック）
     ├── pyldavis_output_pcoa{n}.html（トピック解析結果）
     └── topic{n}.png（トピックの可視化画像）
@@ -17,7 +16,7 @@ topic_data (シミュレーションログ)
 ## データのフォートマット
 ### Agent{n=エージェントID}.txt
 エージェント行動ログです。
-各プロファイルは、","で区切られており、
+各プロファイルは、" "で区切られており、
 先頭行がヘッダーとなっています。その内容は以下のとおりです。
 - step：シミュレーションのステップ数
 - tag：エージェントが発火している行動ルール名
